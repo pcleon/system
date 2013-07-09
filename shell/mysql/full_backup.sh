@@ -23,6 +23,7 @@ LOG_PATH=/var/log/backup_mysql/full
 MEM=4
 
 [ ! -d $BACKUP_PATH ] && mkdir $BACKUP_PATH
+[ ! -d $LOG_PATH ] && mkdir $LOG_PATH
 
 mv $BACKUP_PATH/now_base{,.back}
 LOG_TIME=$(date +%Y%m%d%H%M%S)

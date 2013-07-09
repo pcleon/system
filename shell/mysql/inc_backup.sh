@@ -19,6 +19,7 @@ BASE_DIR=$(cat $BACKUP_PATH/inc_base)
 MYSQL_SOCK=/tmp/$(grep '^socket' $MYSQL_PATH/my.cnf|head -n1|rev|cut -d\/ -f1|rev)
 LOG_NAME="$DB_NAME-$LOG_TIME.log"
 [ ! -d $BACKUP_PATH ] && mkdir $BACKUP_PATH
+[ ! -d $LOG_PATH ] && mkdir $LOG_PATH
 mv $BACKUP_PATH/inc_base{,.back}
 
 #检测今天是否已经存在备份,线上使用时需要把exit 3打开
