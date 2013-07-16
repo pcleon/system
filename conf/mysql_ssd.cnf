@@ -97,16 +97,7 @@ skip-character-set-client-handshake
 collation_server=utf8_general_ci
 #innodb严重依赖这个buffer,一般设置为机器内存大小的2/3#
 innodb_buffer_pool_size = 81920M
-#抱怨Innodb比MyISAM慢 100倍？那么你大概是忘了调整这个值。默认值1的意思是每一次事务提交或事务外的指令都需要把日志写入（flush）硬盘，这是很费时的。特别是使用电池供电缓存（Battery backed up cache）时。_server= 'utf8_general_ci';
-collation_server=utf8_general_ci
-#innodb严重依赖这个buffer,一般设置为机器内存大小的2/3#
-innodb_buffer_pool_size = 81920M
-#抱怨Innodb比MyISAM慢 100倍？那么你大概是忘了调整这个值。默认值1的意思是每一次事务提交或事务外的指令都需要把日志写入（flush）硬盘，这是很费时的。特别是使用电池供电缓存（Battery backed up cache）时。_server= 'utf8_general_ci';
-collation_server=utf8_general_ci
-#innodb严重依赖这个buffer,一般设置为机器内存大小的2/3#
-innodb¼这是很费时的。特别是使用电池供电缓存（Battery backed up cache）时。_server= 'utf8_general_ci';
-collation_server=utf8_general_ci
-#innodb严重依赖这个buffer,一般设置为机å¤更改了这个配置后需要删除掉ib_logfile0,ib_logfile1等文件，否则将不能启动#
+#总的来说，Innodb 的事务日志文件设置的越大，系统的IO 性能也就越高，但是当遇到MySQL ，OS 或者主机Crash 的时候系统所需要的恢复时间也就越长；反之，日志越小，IO 性能自然也就相对会差一 些，但是当MySQL，OS 或者主机Crash 之后所需要的恢复时间也越小。所以，到底该将事务日志设置多 大其实是一个整体权衡的问题，既要考虑到系统整体的性能，又要兼顾到Crash 之后的恢复时间。
 innodb_log_group_home_dir= /home/service/hdd/
 innodb_log_file_size = 1024M
 innodb_log_files_in_group = 3
