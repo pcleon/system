@@ -9,9 +9,9 @@ import urllib2
 import sys
 
 #from config import *
-app_key="HvYMQc7fGyyf"
-app_secret="Bx6GJ8E3fzD5Xde1wQgY"
-uid="api-wplnnzvb"
+app_key=""
+app_secret=""
+uid="api-xxxxxxx"
 
 realm = "xiaoi.com"
 method = "POST"
