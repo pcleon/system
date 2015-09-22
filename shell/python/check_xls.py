@@ -12,15 +12,16 @@ def regfile(key, XLS):
     reg = re.compile(key)
     for names in data.sheet_names():
         reg_temp = []
-        print()
-        print ("<<<<<<<<<<<" + XLS+ " 表 " + names + " >>>>>>>>>>")
         sheet = data.sheet_by_name(names)
         for row_num in range(sheet.nrows):
             row_content = '|'.join( str(i) for i in sheet.row_values(row_num) )
             if reg.search(row_content):
                 reg_temp.append(row_content)
-        for line in reg_temp:
-            print(line)
+        if reg_temp:
+            print()
+            print ("<<<<<<<<<<<" + XLS+ " 表 " + names + " >>>>>>>>>>")
+            for line in reg_temp:
+                print(line)
 
 def get_xls_file(dir):
     files =[]
