@@ -1,0 +1,73 @@
+'''for windows version'''
+import sys
+import os
+import xlrd
+import xlwt
+import sys, tkinter
+from tkinter.filedialog import *
+
+
+MAX_AVG = 30
+MAX_TOP = 60
+
+def get_sheet_data(XLS):
+    u = []
+    book = xlrd.open_workbook(XLS)
+    sheet_data = book.sheet_by_index(0)
+    for line in range(4,sheet_data.nrows):
+        bw_usage = sheet_data.row_values(line)[-4:]
+        avg_per = max(bw_usage[0:2])
+        top_per = max(bw_usage[2:4])
+        try:
+            if (avg_per >= MAX_AVG or top_per >=MAX_TOP ):
+                u.append(sheet_data.row_values(line))
+        except TypeError:
+            pass
+    return u
+
+def classify_data(filter_array):
+    cities = {}
+    for line in filter_array:
+        if line[0] not in cities.keys():
+            cities[line[0]]=[line]
+        else:
+            cities[line[0]].append(line)
+    return cities
+
+
+def write_data(data,xls_name):
+    import xlwt
+    w = xlwt.Workbook(encoding='gbk')
+    head = ['节点','电路属性','电路编码','电路名称','电路中文名称','A端设备','A端端口','B端设备','B端端口','合同带宽','电路带宽','流入','流出','流入','流出']
+    for key in data.keys():
+        ws = w.add_sheet(key)
+        city_data = data[key]
+        for i in range(len(head)):
+            ws.write(0,i,head[i])
+        for rownum in range(len(city_data)):
+            for colnum in range(len(city_data[rownum])):
+                ws.write(rownum+1,colnum,city_data[rownum][colnum])
+    xls_new = xls_name.split('.')[0]+'-out.xls'
+    w.save(xls_new)
+
+
+
+def do_TK():
+   fd = LoadFileDialog(root)
+#   print(fd.go())
+   fname = fd.go()
+ #  print(type(fname))
+   print(fname.split('.'))
+   xx = get_sheet_data(fname)
+   filter_data = classify_data(xx)
+   write_data(filter_data,fname)
+
+
+
+
+if __name__ == "__main__":
+    root = tkinter.Tk() 
+    root.title("HelloWorld")
+    root.minsize(200, 100) 
+    excel = tkinter.Button(root,text = "选择文件", command=do_TK, width=6,height=1).pack()
+    root.mainloop()
