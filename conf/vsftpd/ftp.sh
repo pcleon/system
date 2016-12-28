@@ -49,3 +49,7 @@ account    include  system-auth
 session    include  system-auth
 session    required     pam_loginuid.so
 EOF
+
+mkdir -p /data/ftp/test
+chown -R ftp.ftp /data/ftp
+chmod 755 /data/ftp;chmod 755 /data/ftp/test
