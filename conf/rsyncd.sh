@@ -22,8 +22,8 @@ write only = no
       secrets file = /etc/rsyncd.pwd
 EOF
 
-cat >rsyncd.pwd <<EOF
+cat >/etc/rsyncd.pwd <<EOF
 up_file:test
 EOF
-
+chmod 600 /etc/rsyncd.pwd
 rsync --daemon --config=/etc/rsyncd.conf --port=12000
