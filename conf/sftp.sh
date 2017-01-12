@@ -1,9 +1,23 @@
-useradd -m -d /data/sftp -s /sbin/nologin -G ftp sftp
-chmod 755 /data/sftp
-chown root.root /data/sftp
-mkdir /data/sftp/upload
-chown sftp.sftp upload
-echo 'sftp:sftp' |chpasswd
+if [ $# -ne 1 ];then
+    echo "Usage: $0 username"
+    exit 3
+fi
+
+[ -d /data/sftp ] || mkdir -p /data/sftp
+
+user=$1
+sftp_dir=/data/sftp/$user
+
+useradd -m -G ftp -s /sbin/nologin $user
+mkdir -p /home/$user/.ssh && chmod 700 /home/$user/.ssh
+touch /home/$user/.ssh/authorized_keys  && chmod 600 /home/$user/.ssh/authorized_keys 
+chown -R $user.$user /home/$user/.ssh
+
+[ -d $sftp_dir ] || mkdir -p $sftp_dir 
+mkdir $sftp_dir/upload && chown $user.$user $sftp_dir/upload
+
+echo "$user:$user" |chpasswd
+passwd -l $user
 
 cat >/etc/ssh/sftp.42131<<EOF
 #
@@ -28,10 +42,9 @@ X11Forwarding yes
 UseDNS no 
 
 Subsystem       sftp    internal-sftp
-#Match User gzcb_repay
-Match Group sftp
+Match Group ftp
   ForceCommand internal-sftp
-  ChrootDirectory %h
+  ChrootDirectory /data/sftp/%u
   X11Forwarding no
   AllowTcpForwarding no
 
