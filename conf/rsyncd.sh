@@ -27,3 +27,6 @@ up_file:test
 EOF
 chmod 600 /etc/rsyncd.pwd
 rsync --daemon --config=/etc/rsyncd.conf --port=12000
+
+#client's password file must be 600
+#rsync -av --port=12000 --password-file=passwd_file up_file@10.49.108.143::wxfq/q.txt .
