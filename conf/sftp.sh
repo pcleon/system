@@ -42,7 +42,7 @@ X11Forwarding yes
 UseDNS no 
 
 Subsystem       sftp    internal-sftp
-Match Group ftp
+#Match Group ftp
   ForceCommand internal-sftp
   ChrootDirectory /data/sftp/%u
   X11Forwarding no
