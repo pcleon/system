@@ -19,9 +19,9 @@ mkdir $sftp_dir/upload && chown $user.$user $sftp_dir/upload
 echo "$user:$user" |chpasswd
 passwd -l $user
 
-cat >/etc/ssh/sftp.42131<<EOF
+cat >/etc/ssh/sftp.42121<<EOF
 #
-Port 42131   
+Port 42121   
 #ListenAddress     x.x.x.x
 Protocol 2
 SyslogFacility AUTHPRIV
@@ -42,12 +42,12 @@ X11Forwarding yes
 UseDNS no 
 
 Subsystem       sftp    internal-sftp
+ForceCommand internal-sftp
 #Match Group ftp
-  ForceCommand internal-sftp
   ChrootDirectory /data/sftp/%u
   X11Forwarding no
   AllowTcpForwarding no
 
 EOF
 
-/usr/sbin/sshd -f /etc/ssh/sftp.42131 
+/usr/sbin/sshd -f /etc/ssh/sftp.42121 
