@@ -1,0 +1,156 @@
+[client]
+port            = 3306
+socket          = /home/mysql/pcMysqldata/mysql.sock
+############################################
+
+[mysqld]
+# basic settings
+port            = 3306
+socket          = /home/mysql/pcMysqldata/mysql.sock
+sql_mode=''
+back_log =  300
+max_connections = 3500
+max_connect_errors = 9999
+transaction_isolation = READ-COMMITTED
+max_allowed_packet = 1024M
+open_files_limit=8192
+read_only
+init_connect="set names latin1"
+character_set_server=latin1
+skip-name-resolve
+
+# query cache setting
+query_cache_size = 0
+query_cache_limit = 2M
+query_cache_type=0
+
+# binlog setting
+log_bin=binlog/binlog
+binlog_format=row
+log_slave_updates=on
+sync_binlog=0
+
+# slow query settings
+slow-query-log
+long_query_time = 2
+slow_query_log_file = mysql-slow.log
+log_slow_slave_statements
+
+# memory/performance settings
+binlog_cache_size = 2M
+sort_buffer_size = 2M
+join_buffer_size = 2M
+key_buffer_size = 32M
+read_buffer_size = 2M
+read_rnd_buffer_size = 16M
+bulk_insert_buffer_size = 64M
+thread_stack = 192K
+myisam_sort_buffer_size = 128M
+innodb_buffer_pool_size = 8G
+innodb_flush_log_at_trx_commit = 2
+innodb_log_buffer_size = 16M
+innodb_log_file_size = 1G
+innodb_log_files_in_group = 10
+innodb_max_dirty_pages_pct = 60
+innodb_stats_on_metadata=0
+innodb_flush_method=O_DIRECT
+innodb_lock_wait_timeout =8
+thread_cache_size = 256
+#thread_concurrency = 8
+innodb_write_io_threads=16
+innodb_read_io_threads=8
+innodb_io_capacity=10000
+innodb_thread_concurrency=24
+innodb_purge_threads=1
+innodb_buffer_pool_instances=8
+innodb_autoinc_lock_mode=2
+performance_schema=off
+innodb_page_cleaners=4
+innodb_old_blocks_time=1000
+#innodb_undo_tablespaces=3
+innodb_buffer_pool_dump_at_shutdown = 0
+innodb_buffer_pool_load_at_startup = 0
+innodb_print_all_deadlocks = 1
+innodb_log_checksums=on
+innodb_checksum_algorithm=crc32
+innodb_file_per_table=0
+
+
+# file settings
+datadir = /home/mysql/pcMysqldata
+innodb_log_group_home_dir = /home/mysql/pcMysqldata
+innodb_data_home_dir = /home/mysql/pcMysqldata
+innodb_data_file_path = ibdata1:2G;ibdata2:2G;ibdata3:2G;...;ibdatax:2G:autoextend
+general_log_file = mysql.log
+log_error = mysql.err
+pid_file = mysql.pid
+tmpdir=/home/mysql/pcMysqldata/tmpdir
+
+
+# openfiles
+table_definition_cache=10000
+table_open_cache =10000
+innodb_open_files=10000
+open_files_limit=10000
+
+# replication settings
+gtid_mode = on
+enforce_gtid_consistency = 1
+binlog_gtid_simple_recovery = 1
+server-id = 874634
+relay_log_space_limit=50G
+skip-slave-start
+relay_log = binlog/relay
+relay_log_info_file = binlog/relay.info
+master_info_file = binlog/master.info
+relay_log_recovery=on
+master_info_repository = TABLE
+relay_log_info_repository = TABLE
+slave_parallel_type=logical_clock
+slave_parallel_workers = 4
+slave_net_timeout=30
+
+# for failover
+replicate-ignore-table=xx.xx
+
+
+# other settings
+tmp_table_size = 128M
+ft_min_word_len = 4
+tmp_table_size = 128M
+max_heap_table_size = 2048M
+myisam_max_sort_file_size = 10G
+myisam_repair_threads = 1
+div_precision_increment=2
+interactive_timeout = 1800
+wait_timeout = 1800
+log_error_verbosity=2
+log_timestamps=SYSTEM
+#####################################################
+[mysqldump]
+quick
+max_allowed_packet = 1024M
+default-character-set=latin1
+#####################################################
+[mysql]
+no-auto-rehash
+default-character-set=latin1
+
+[isamchk]
+key_buffer = 512M
+sort_buffer_size = 512M
+read_buffer = 8M
+write_buffer = 8M
+
+#####################################################
+[myisamchk]
+key_buffer = 512M
+sort_buffer_size = 512M
+read_buffer = 8M
+write_buffer = 8M
+[mysqlhotcopy]
+interactive-timeout
+
+#####################################################
+[mysqld_safe]
+open-files-limit = 10000
