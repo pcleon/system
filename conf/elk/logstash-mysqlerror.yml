@@ -1,0 +1,32 @@
+input {
+  kafka{
+    topics => ["mysql_error"]
+    bootstrap_servers => "x.x.x.x:9092"
+  }
+}
+
+filter {
+  grok {
+    patterns_dir => ["/home/elk/logstash-5.5.0/config/pattern"]
+    match => { "message" => [
+      "#myip\[%{IPV4:myip}\] %{LOCALDATETIME:error.timestamp} (\[%{DATA:error.level}\] )?%{GREEDYDATA:error.message}",
+      "#myip\[%{IPV4:myip}\] %{DATA:error.timestamp} %{NUMBER} \[%{DATA:error.level}\] %{GREEDYDATA:error.message1}",
+      "#myip\[%{IPV4:myip}\] %{GREEDYDATA:error.message2}"
+    ]
+    }
+  }
+
+  date {
+    match => ["error.timestamp", "ISO8601", "YYMMdd H:m:s"]
+  }
+
+  mutate {
+    rename => { "error.message1" => "error.message" }
+    rename => { "error.message2" => "error.message" }
+    remove_field => [ "message", "error.timestamp" ]
+  }
+}
+
+output {
+    stdout { codec => rubydebug }
+}
