@@ -1,6 +1,6 @@
 input {
   kafka{
-    topics => ["mysql"]
+    topics => ["mysql_slow"]
     bootstrap_servers => "IP:9092"
   }
 }
