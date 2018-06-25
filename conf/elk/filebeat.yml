@@ -1,0 +1,44 @@
+setup.template.enabled: false
+template.overwrite: false
+
+filebeat.config.prospectors:
+  enabled: true
+  path: /home/elk/filebeat-5.5.0-linux-x86_64/conf/kaf-slow.yml
+  reload.enabled: true
+  reload.period: 5s
+
+
+filebeat.modules:
+- module: mysql
+#  error:
+#    enabled: true
+#    var.paths: ["/data/error.log"]
+#    prospector:
+#      fields:
+#        my_type: error
+  slowlog:
+    enabled: true
+    var.paths: ["/tmp/slow"]
+    prospector:
+      fields:
+        my_type: slow
+
+
+
+fields_under_root: true
+fields:
+  ip: X.X.X.X
+
+#output.console:
+#  enabled: true
+#  pretty: false
+
+#logging.to_files: true
+#logging.files:
+#  path: /tmp/filebeat
+
+output.kafka:
+  hosts: ["IP:9092"]
+  topic: mysql
+  codec.format:
+    string: '#myip[%{[ip]}] %{[message]}'
