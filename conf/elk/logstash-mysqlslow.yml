@@ -1,0 +1,30 @@
+input {
+  kafka{
+    topics => ["mysql"]
+    bootstrap_servers => "IP:9092"
+  }
+}
+
+#input { stdin { } }
+#
+filter {
+  grok {
+    patterns_dir => ["/home/elk/logstash-5.5.0/config/pattern"]
+    match => { "message" => "^#myip\[%{IPV4:myip}\] # User@Host: %{USER:slowlog.user}(\[[^\]]+\])? @ %{HOSTNAME:slowlog.host} \[(%{IP:slowlog.ip})?\](\s*Id:\s* %{NUMBER})?\n# Query_time: %{NUMBER:slowlog.query_time.sec}\s* Lock_time: %{NUMBER:slowlog.lock_time.sec}\s* Rows_sent: %{NUMBER:slowlog.rows_sent}\s* Rows_examined: %{NUMBER:slowlog.rows_examined}\n(SET timestamp=%{NUMBER:slowlog.timestamp};\n)?%{GREEDYMULTILINE:slowlog.query}" }
+  }
+
+  date {
+    match => ["slowlog.timestamp","UNIX"]
+  }
+
+  mutate {
+    remove_field => [ "message" ]
+    gsub => [ 
+      "slowlog.query", "\n# Time:.*Z$", ""
+    ]
+  }
+}
+
+output {
+    stdout { codec => rubydebug }
+}
