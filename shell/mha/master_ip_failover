@@ -1,0 +1,138 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings FATAL => 'all';
+
+use Getopt::Long;
+use MHA::DBHelper;
+use MHA::Config;
+use File::Basename;
+use File::Spec; 
+use Config::Tiny;
+
+
+
+my $vip;
+my $device;
+my $key=1;
+($vip, $device) = &get_vip();
+my $ssh_start_vip = "/usr/sbin/ip addr add $vip/32 dev $device:$key; /sbin/arping -c 5 -U -I $device $vip";
+my $ssh_stop_vip = "/usr/sbin/ip addr del $vip/32 dev $device:$key"; 
+
+my (
+  $command,        $ssh_user,         $orig_master_host,
+  $orig_master_ip, $orig_master_port, $new_master_host,
+  $new_master_ip,  $new_master_port,  $new_master_user,
+  $new_master_password
+);
+GetOptions(
+  'command=s'             => \$command,
+  'ssh_user=s'            => \$ssh_user,
+  'orig_master_host=s'    => \$orig_master_host,
+  'orig_master_ip=s'      => \$orig_master_ip,
+  'orig_master_port=i'    => \$orig_master_port,
+  'new_master_host=s'     => \$new_master_host,
+  'new_master_ip=s'       => \$new_master_ip,
+  'new_master_port=i'     => \$new_master_port,
+  'new_master_user=s'     => \$new_master_user,
+  'new_master_password=s' => \$new_master_password,
+);
+
+exit &main();
+
+sub main {
+  if ( $command eq "stop" || $command eq "stopssh" ) {
+
+    # $orig_master_host, $orig_master_ip, $orig_master_port are passed.
+    # If you manage master ip address at global catalog database,
+    # invalidate orig_master_ip here.
+    my $exit_code = 1;
+    eval {
+      # updating global catalog, etc
+      &stop_vip();
+
+      $exit_code = 0;
+    };
+    if ($@) {
+      warn "Got Error: $@\n";
+      exit $exit_code;
+    }
+    exit $exit_code;
+  }
+  elsif ( $command eq "start" ) {
+
+    # all arguments are passed.
+    # If you manage master ip address at global catalog database,
+    # activate new_master_ip here.
+    # You can also grant write access (create user, set read_only=0, etc) here.
+    my $exit_code = 10;
+    eval {
+      my $new_master_handler = new MHA::DBHelper();
+
+      # args: hostname, port, user, password, raise_error_or_not
+      $new_master_handler->connect( $new_master_ip, $new_master_port,
+        $new_master_user, $new_master_password, 1 );
+
+      ## Set read_only=0 on the new master
+      $new_master_handler->disable_log_bin_local();
+      print "Set read_only=0 on the new master.\n";
+      $new_master_handler->disable_read_only();
+
+      ## Creating an app user on the new master
+      #print "Creating app user on the new master..\n";
+      #FIXME_xxx_create_user( $new_master_handler->{dbh} );
+      $new_master_handler->enable_log_bin_local();
+      $new_master_handler->disconnect();
+
+      ## Update master ip on the catalog database, etc
+      #FIXME_xxx;
+      # Update master vip on the new master
+      &start_vip();  
+
+      $exit_code = 0;
+    };
+    if ($@) {
+      warn $@;
+
+      # If you want to continue failover, exit 10.
+      exit $exit_code;
+    }
+    exit $exit_code;
+  }
+  elsif ( $command eq "status" ) {
+
+    # do nothing
+    exit 0;
+  }
+  else {
+    &usage();
+    exit 1;
+  }
+}
+
+sub usage {
+  print
+"Usage: master_ip_failover --command=start|stop|stopssh|status --orig_master_host=host --orig_master_ip=ip --orig_master_port=port --new_master_host=host --new_master_ip=ip --new_master_port=port\n";
+}
+
+sub get_vip {
+  my $path_curf = File::Spec->rel2abs(__FILE__);
+  my $path = dirname($path_curf);
+  my $self_cfg = $path."/vip.cnf";
+  my $config = Config::Tiny->read($self_cfg);
+  my $vip = $config->{cnf}->{vip};
+  my $device = $config->{cnf}->{device};
+  return ($vip, $device) if ($vip && $device);
+  warn "Got vip Error: $vip\n";
+  exit 1;
+}
+
+sub start_vip() {
+     print "\033[43;35mstart vip:$vip on $ssh_user\@$new_master_host \033[0m \n";
+    `ssh $ssh_user\@$new_master_host \" $ssh_start_vip \"`;
+}
+sub stop_vip() {
+     #return 0  unless  ($ssh_user);
+     print "\033[43;35mstop vip:$vip on $orig_master_host \033[0m \n";
+    `ssh $orig_master_host \" $ssh_stop_vip \"`;
+}
