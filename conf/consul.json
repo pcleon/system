@@ -1,0 +1,17 @@
+{
+"datacenter": "idc10",
+"pid_file": "/data/consul/consul.pid",
+"data_dir": "/data/consul/data",
+"log_file": "/data/consul/log",
+"log_level": "INFO",
+"log_rotate_duration": "24h",
+"node_name": "{{ ansible_default_ipv4 }}",
+"server": "{{ is_server }}",
+"bootstrap_expect": 1,
+"client_addr": "0.0.0.0",
+"advertise_addr": "{{ ansible_default_ipv4 }}",
+"advertise_addr_wan": "{{ ansible_default_ipv4 }}",
+"retry_join": "{{ consul_server }}",
+"rejoin_after_leave": true,
+"enable_syslog": false
+}
