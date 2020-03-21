@@ -1,0 +1,36 @@
+-f 后台执行ssh指令
+-C 允许压缩数据
+-N 不执行远程指令
+-R 将远程主机(服务器)的某个端口转发到本地端指定机器的指定端口
+-L 将本地机(客户机)的某个端口转发到远端指定机器的指定端口,需要root权限?
+-p 指定远程主机的端口
+
+A为内网,C和A共网段
+B为公网
+
+ssh -fCNR [B机器IP或省略]:[B机器端口]:[A机器的IP]:[A机器端口] [登陆B机器的用户名@服务器IP]
+
+
+在内网机器上
+/usr/bin/autossh -M check_port(可任意设置,反向检查用) -CNR  反向ssh端口:内网地址/localhost:内网端口 public_user@公网地址 -p 公网ssh端口
+
+正向:
+ ssh -f -N -D 0.0.0.0:socket_port -p 反向ssh端口 内网用户名@localhost
+ 或者ssh -fCNL *:1234:localhost:7280 localhost
+ 
+ 
+
+例子:
+A上
+autossh -M 10021 -CNR  10022:C_IP:C_SSH_PORT B_USER@B_IP -p 22
+或
+autossh -M 10021 -CNR  10022:0.0.0.0:22 B_USER@B_IP -p 22
+
+
+B上
+ssh -f -N -D 0.0.0.0:8001 -p 10022 user@localhost
+ 
+浏览器中配置socket代理地址为B的IP:8001
+ 
+ 
+ 
