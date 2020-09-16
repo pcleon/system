@@ -1,0 +1,8 @@
+将本机的端口转发到其他机器
+通过 1.168 的 6666 端口访问 1.8 的 7777 端口，在 1.168 上设置：
+
+sysctl -w net.ipv4.ip_forward=1
+iptables -t nat -A PREROUTING -p tcp --dport 6666 -j DNAT --to-destination 192.168.1.8:7777
+iptables -t nat -A POSTROUTING -p tcp -d 192.168.1.8 --dport 7777 -j SNAT --to-source 192.168.1.168
+
+client <--3138-6666--> 1.168 <--3138-7777-->1.8
