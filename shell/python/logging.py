@@ -1,34 +1,44 @@
-#!/usr/bin/env python
-#coding:utf8
-
-import logging
+import logging,time
+import os
 from logging.handlers import TimedRotatingFileHandler
-import time
 
-def initLog():
-    #logger
-    logger = logging.getLogger('test')
-    logger.setLevel(logging.WARNING)
-    #file handler
-    fname = 'log'
-    fh = TimedRotatingFileHandler(filename = fname , when='M', interval= 1 , backupCount= 0)
-    fh.suffix = "%Y%m%d_%H%M"
-    #fmt
-    datefmt = "%Y%m%d %H:%M:%S"
-    fmt = "%(asctime)-15s %(levelname)s %(filename)s %(lineno)d %(process)d %(message)s"
-    formatter = logging.Formatter(fmt, datefmt)
-    #add fmt to handler
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-    return logger
+class Logger(object):
+    def __init__(self, logname, day=30):
+        logdir = os.path.dirname(logname)
+        if not os.path.exists(logdir) and logdir != '':
+            os.mkdir(logdir)
+        self.logname = logname
+        self.day = day
+        self.logger = logging.getLogger()
+        self.logger.setLevel(logging.NOTSET)
 
-while 1 :
-    t = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    info = 'info ---- ' + t
-    warn = 'info ---- ' + t
-    err = 'info ---- ' + t
-    log = initLog()
-    log.info(info)
-    log.warning(warn)
-    log.error(err)
-    time.sleep(1)
+        formatter = logging.Formatter('%(asctime)s|%(module)s|%(lineno)s|%(levelname)s|%(message)s')
+        # 创建一个FileHandler，用于写到本地
+        fh = TimedRotatingFileHandler(filename=self.logname, when="midnight", interval=1, backupCount=self.day)
+        fh.suffix = '%Y-%m-%d'
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        if not self.logger.handlers:
+            self.logger.addHandler(fh)
+
+    def debug(self, message):
+        self.logger.debug(message)
+
+    def info(self, message):
+        self.logger.info(message)
+
+    def warn(self, message):
+        self.logger.warning(message)
+
+    def error(self, message):
+        self.logger.error(message)
+
+    def critical(self, message):
+        self.logger.critical(message)
+
+
+if __name__ == '__main__':
+    l = Logger('test.log')
+    l.info('aa')
+    x = Logger('test.log')
+    x.error('aa')
