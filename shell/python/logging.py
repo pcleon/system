@@ -9,6 +9,7 @@ def mylog(logname, interval=1, backup=30):
         os.mkdir(logdir)
 
     logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s|%(module)s|%(lineno)s|%(levelname)s|%(message)s')
     #日志回滚与定期删除
     rotating_handler = TimedRotatingFileHandler(
@@ -16,7 +17,6 @@ def mylog(logname, interval=1, backup=30):
     )
     rotating_handler.setFormatter(formatter)
     rotating_handler.suffix = '%Y-%m-%d'
-    rotating_handler.setLevel(logging.DEBUG)
     rotating_handler.setFormatter(formatter)
     if not logger.handlers:
         logger.addHandler(rotating_handler)
