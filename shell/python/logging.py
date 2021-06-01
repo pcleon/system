@@ -1,44 +1,28 @@
-import logging,time
+#coding: utf-8
+import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-class Logger(object):
-    def __init__(self, logname, day=30):
-        logdir = os.path.dirname(logname)
-        if not os.path.exists(logdir) and logdir != '':
-            os.mkdir(logdir)
-        self.logname = logname
-        self.day = day
-        self.logger = logging.getLogger()
-        self.logger.setLevel(logging.NOTSET)
+def mylog(logname, interval=1, backup=30):
+    logdir = os.path.dirname(logname)
+    if not os.path.exists(logdir) and logdir != '':
+        os.mkdir(logdir)
 
-        formatter = logging.Formatter('%(asctime)s|%(module)s|%(lineno)s|%(levelname)s|%(message)s')
-        # 创建一个FileHandler，用于写到本地
-        fh = TimedRotatingFileHandler(filename=self.logname, when="midnight", interval=1, backupCount=self.day)
-        fh.suffix = '%Y-%m-%d'
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(formatter)
-        if not self.logger.handlers:
-            self.logger.addHandler(fh)
-
-    def debug(self, message):
-        self.logger.debug(message)
-
-    def info(self, message):
-        self.logger.info(message)
-
-    def warn(self, message):
-        self.logger.warning(message)
-
-    def error(self, message):
-        self.logger.error(message)
-
-    def critical(self, message):
-        self.logger.critical(message)
-
+    logger = logging.getLogger()
+    formatter = logging.Formatter('%(asctime)s|%(module)s|%(lineno)s|%(levelname)s|%(message)s')
+    #日志回滚与定期删除
+    rotating_handler = TimedRotatingFileHandler(
+        logname, when='midnight', interval=interval, backupCount=backup
+    )
+    rotating_handler.setFormatter(formatter)
+    rotating_handler.suffix = '%Y-%m-%d'
+    rotating_handler.setLevel(logging.DEBUG)
+    rotating_handler.setFormatter(formatter)
+    if not logger.handlers:
+        logger.addHandler(rotating_handler)
+    logger.propagate = False
+    return logger
 
 if __name__ == '__main__':
-    l = Logger('test.log')
-    l.info('aa')
-    x = Logger('test.log')
-    x.error('aa')
+    l = mylog('test.log')
+    l.error('err')
