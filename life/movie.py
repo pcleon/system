@@ -54,12 +54,37 @@ def dy2018():
 
 
 
+def dytt89_main():
+    global last_title
+    print('run index.html', time.asctime(time.localtime(time.time())))
+    baseurl = 'https://www.dytt89.com'
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53\
+            7.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+    }
+    requests.packages.urllib3.disable_warnings()
+    html = requests.get(baseurl, headers=headers, verify=False)
+    html.encoding = 'gb2312'
+    html_doc = html.text
+    soup = BeautifulSoup(html_doc, 'html.parser')
+    a = soup.select('#header > div > div.bd2 > div:nth-child(6) > div:nth-child(1) > div.co_content222 > ul > li > a' )
+    del a[0]
+    msg = ''
+    if last_title != a[0]:
+        for i in a[:5]:
+            i['href'] = baseurl + i['href']
+            msg += str(i) + '\r\n'
+        mail('电影上新', msg)
+        last_title = a[0]
+
 if __name__ == '__main__':
-    dy2018()
+    # dy2018()
     # schedule.every(10).minutes.do(dy2018)
-    # schedule.run_pending()
-    # while True:
-    #     cur_hour = time.localtime().tm_hour
-    #     if 9 <= cur_hour < 24:
-    #         schedule.run_pending()
-    #     time.sleep(10)
+    dytt89_main()
+    schedule.every(10).minutes.do(dytt89_main)
+    schedule.run_pending()
+    while True:
+        cur_hour = time.localtime().tm_hour
+        if 9 <= cur_hour < 24:
+            schedule.run_pending()
+        time.sleep(10)
