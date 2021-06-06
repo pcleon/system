@@ -70,12 +70,12 @@ def dytt89_main():
     a = soup.select('#header > div > div.bd2 > div:nth-child(6) > div:nth-child(1) > div.co_content222 > ul > li > a' )
     del a[0]
     msg = ''
-    if last_title != a[0]:
+    if last_title != a[0].text:
         for i in a[:5]:
             i['href'] = baseurl + i['href']
             msg += str(i) + '\r\n'
         mail('电影上新', msg)
-        last_title = a[0]
+        last_title = a[0].text
 
 if __name__ == '__main__':
     # dy2018()
