@@ -28,11 +28,11 @@ def mail(subject, msg):
     try:
         stmp.sendmail(from_addr, to_addrs, message.as_string())
     except Exception as e:
-        print('邮件发送失败--' + str(e))
-    print('邮件发送成功')
+        print('邮件发送失败--' + str(e), flush=True)
+    print('邮件发送成功', flush=True)
 
 def dy2018():
-    print('run dy2018', time.asctime(time.localtime(time.time())))
+    print('run dy2018', time.asctime(time.localtime(time.time())), flush=True)
     global last_title
     baseurl = 'https://www.dy2018.com'
     url = baseurl + '/html/gndy/dyzz/index.html'
@@ -56,7 +56,7 @@ def dy2018():
 
 def dytt89_main():
     global last_title
-    print('run index.html', time.asctime(time.localtime(time.time())))
+    print('run dytt89:', time.asctime(time.localtime(time.time())), flush=True)
     baseurl = 'https://www.dytt89.com'
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53\
@@ -85,6 +85,7 @@ if __name__ == '__main__':
     schedule.run_pending()
     while True:
         cur_hour = time.localtime().tm_hour
+        print('check: ', time.asctime(time.localtime(time.time())), flush=True)
         if 9 <= cur_hour < 24:
             schedule.run_pending()
         time.sleep(10)
