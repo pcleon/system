@@ -3,6 +3,7 @@ import requests
 import smtplib
 import schedule
 import time
+import random
 from email.mime.text import MIMEText
 from email.header import Header
 
@@ -55,6 +56,7 @@ def dy2018():
 
 
 def dytt89_main():
+    time.sleep(random.randint(1,60))
     global last_title
     print('run dytt89:', time.asctime(time.localtime(time.time())), flush=True)
     baseurl = 'https://www.dytt89.com'
@@ -63,7 +65,11 @@ def dytt89_main():
             7.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
     }
     requests.packages.urllib3.disable_warnings()
-    html = requests.get(baseurl, headers=headers, verify=False)
+    try:
+        html = requests.get(baseurl, headers=headers, verify=False)
+    except Exception as e:
+        print(e)
+        return
     html.encoding = 'gb2312'
     html_doc = html.text
     soup = BeautifulSoup(html_doc, 'html.parser')
@@ -77,6 +83,7 @@ def dytt89_main():
         mail('电影上新', msg)
         last_title = a[0].text
 
+
 if __name__ == '__main__':
     # dy2018()
     # schedule.every(10).minutes.do(dy2018)
@@ -88,4 +95,4 @@ if __name__ == '__main__':
         print('check: ', time.asctime(time.localtime(time.time())), flush=True)
         if 9 <= cur_hour < 24:
             schedule.run_pending()
-        time.sleep(10)
+        time.sleep(30)
