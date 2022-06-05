@@ -1,3 +1,3 @@
 leon's something about system
 ====
-something config files and shell files
+something config files and script files
