@@ -1,0 +1,1 @@
+./configure LDFLAGS="-L/usr/local/sqlite3/lib" CPPFLAGS="-I/usr/local/sqlite3/include" --enable-optimizations --enable-loadable-sqlite-extensions --prefix=/usr/local/python3.11 --with-openssl=/usr/local/openssl  --with-openssl-rpath=auto --enable-ipv6
