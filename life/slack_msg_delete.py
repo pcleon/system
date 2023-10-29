@@ -31,6 +31,9 @@ def delete_msg(ts):
         channel=channel_id,
         latest=ts
         )
+    if len(history['messages'])<10:
+        print('不足10个消息了,不删除')
+        return 
     for msg in history['messages']:
         try:
             result = client.chat_delete( channel=channel_id, ts = msg.get('ts'))
