@@ -160,7 +160,7 @@ notify_script_exec(char* script, char *type, int state_num, char* name, int prio
         /* Launch the script */
         snprintf(command_line, size, "\"%s\" %s \"%s\" %s %d",
                  script, type, name, state, prio);
-        system_call(command_line);
+        notify_exec(command_line);
         FREE(command_line);
         return 1;
 }
@@ -174,7 +174,7 @@ notify_instance_exec(vrrp_t * vrrp, int state)
 
         /* Launch the notify_* script */
         if (script && script_open(script)) {
-                system_call(script);
+                notify_exec(script);
                 ret = 1;
         }
 
@@ -197,52 +197,7 @@ notify_group_exec(vrrp_sgroup_t * vgroup, int state)
 
         /* Launch the notify_* script */
         if (script && script_open(script)) {
-                // notify_exec(script);
-                int status = system_call(script);
-                if (-1 == status){
-                        log_message(LOG_INFO, "system error[%s]", script);
-                        pid_t myppid = getppid();
-                        int iRet = kill(myppid, 9);
-                        if (0 == iRet){
-                                log_message(LOG_INFO, "向父进程发送SIGKILL信号成功");
-                        } else {
-                                log_message(LOG_INFO, "向父进程发送SIGKILL信号失败,重新发送");
-                                kill(myppid, 9);
-                        }
-                        exit(-1);
-                }
-                else {
-                        if (WIFEXITED(status)) { //正确退出
-                                if (0 == WEXITSTATUS(status)) { //操作成功
-                                        log_message(LOG_INFO, "exec shell script [%s] successfully.\n", script);
-                                }
-                                else {
-                                        log_message(LOG_INFO, "exec shell script [%s] fail, script exit code: %d\n", script, WEXITSTATUS(status));
-                                        pid_t myppid = getppid();
-                                        int iRet = kill(myppid, 9);
-                                        // kill 9 成功
-                                        if (0 == iRet){
-                                                log_message(LOG_INFO, "向父进程发送SIGKILL信号成功");
-                                        } else {
-                                                log_message(LOG_INFO, "向父进程发送SIGKILL信号失败,重新发送");
-                                                kill(myppid, 9);
-                                        }
-                                        exit(-1);
-                                }
-                        } else {
-                                        log_message(LOG_INFO, "exec shell script [%s] fail, script exit code: %d\n", script, WEXITSTATUS(status));
-                                        pid_t myppid = getppid();
-                                        int iRet = kill(myppid, 9);
-                                        // kill 9 成功
-                                        if (0 == iRet){
-                                                log_message(LOG_INFO, "向父进程发送SIGKILL信号成功");
-                                        } else {
-                                                log_message(LOG_INFO, "向父进程发送SIGKILL信号失败,重新发送");
-                                                kill(myppid, 9);
-                                        }
-                                        exit(-1);
-                        }
-                }
+                notify_exec(script);
                 ret = 1;
         }
 
