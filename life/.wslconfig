@@ -1,0 +1,5 @@
+[wsl2]
+#networkingMode=bridged
+#vmSwitch=wsl-bridge
+networkingMode=mirrored
+ipv6=true
