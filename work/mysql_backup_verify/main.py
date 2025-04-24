@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import subprocess
+import sys
 import os
 import re
 import logging
@@ -14,15 +16,44 @@ THIS_MONTH = TODAY.strftime("%Y%m")
 FIRST_DAY = TODAY.replace(day=1)
 LAST_MONTH_END = FIRST_DAY - timedelta(days=1)
 LAST_MONTH = LAST_MONTH_END.strftime("%Y%m")
-        
+
 
 # 配置日志记录[1,3](@ref)
 logging.basicConfig(
     filename='file_processor.log',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    datefmt='%Y-%m-%d %H:%M:%S',
+    encoding='utf-8'  # 解决中文编码问题
 )
+
+# 重定向Python脚本的stdout/stderr到logging
+class LoggerWriter:
+    def __init__(self, level):
+        self.level = level
+    def write(self, message):
+        if message.strip():
+            self.level(message.strip())
+    def flush(self):
+        pass
+
+sys.stdout = LoggerWriter(logging.info)
+sys.stderr = LoggerWriter(logging.error)
+
+# 执行Shell命令并记录输出
+def run_shell_command(command):
+    try:
+        result = subprocess.run(
+            command,
+            shell=True,
+            check=True,
+            text=True,
+            capture_output=True
+        )
+        logging.info(f"命令成功: {command}\n输出: {result.stdout}")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"命令失败: {command}\n错误: {e.stderr}")
+
 
 def get_last_month_files(remote_dir):
     """
@@ -143,9 +174,10 @@ if __name__ == "__main__":
         
         # 第三步：处理文件
         selected = process_files(files)
+        print(selected)
         
         # 第四步：下载解压
-        download_and_extract(selected)
+        # download_and_extract(selected)
         
         logging.info("======== 脚本执行完成 ========")
     except Exception as e:
