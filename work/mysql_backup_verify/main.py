@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import shutil
 import subprocess
 import sys
@@ -63,6 +64,30 @@ def run_shell_command(command):
         logging.error(f"命令失败: {command}\n错误: {e.stderr}")
 
 
+def get_spefic_file(filename):
+    """
+    获取指定文件
+    """
+    try:
+        # 遍历远程目录[7,8](@ref)
+        pattern = re.compile(r"_(.*?)_full_(\d{8})\..*\.tar\.gz")
+        match = pattern.findall(filename)
+        if match:
+            hostname = match[0][0]
+            filedate = match[0][1]
+            # 筛选上个月文件[5](@ref)
+            valid_file = {
+                "filename": filename,
+                "hostname": hostname,
+                "filedate": filedate,
+                "fullpath": os.path.join(BACKUP_FILE_PATH, filename),
+            }
+        return valid_file
+    except Exception as e:
+        logging.error(f"获取文件失败: {str(e)}")
+        raise
+
+
 def get_last_month_files(remote_dir):
     """
     获取上个月符合格式的文件列表
@@ -113,7 +138,7 @@ def process_hostnames(file_list):
         raise
 
 
-def process_files(file_list):
+def choice_random_file(file_list):
     """
     按当天序号读取对应行号的 hostname_list 中的主机名，
     筛选该主机名的上个月文件列表，并随机选择一个文件
@@ -310,29 +335,31 @@ def boot_mysql(hostname, restore_base_dir=RESTORE_FILE_PATH):
         logging.error(f"MySQL 启动失败: {str(e)}")
         run_shell_command(f"cat {config_dir}/error.log")
         raise
-    # finally:
-    #     logging.INFO(f"关闭MySQL")
-    # run_shell_command(f"""mysql -S {MYSQL_SOCKET} -e "shutdown" """)  # 打印当前进程列表
 
 
 if __name__ == "__main__":
-    remote_directory = BACKUP_FILE_PATH
+    parser = argparse.ArgumentParser(description="MySQL Backup Verification Script")
+    parser.add_argument(
+        "-f", "--file", help="指定文件路径进行调度", type=str, required=False
+    )
+    args = parser.parse_args()
 
     try:
         logging.info("======== 开始执行脚本 ========")
-
-        # 第一步：获取文件列表
-        files = get_last_month_files(remote_directory)
-        logging.info(f"找到上个月文件总数: {len(files)}")
-
-        # 第二步：检查是否为当月1号并处理主机名
-        if TODAY.day == 25:
-            process_hostnames(files)
-
-        # 第三步：处理文件
-        selected = process_files(files)
+        # 指定文件时,直接处理
+        if args.file:
+            selected = get_spefic_file(args.file)
+            print(f"指定恢复文件: {selected}")
+        # 通过目录自动获取
+        else:
+            files = get_last_month_files(BACKUP_FILE_PATH)
+            logging.info(f"找到上个月文件总数: {len(files)}")
+            # 第二步：检查是否为当月1号并处理主机名
+            if TODAY.day == 1:
+                process_hostnames(files)
+            # 第三步：处理文件
+            selected = choice_random_file(files)
         print(selected)
-
         # 第四步：磁盘空间预检查
         pre_check_disk(selected)
 
@@ -350,3 +377,6 @@ if __name__ == "__main__":
         logging.critical(f"主流程异常: {str(e)}")
     finally:
         run_shell_command(f"""mysql -S {MYSQL_SOCKET} -e "shutdown" """)
+        tmpdir= f"{RESTORE_FILE_PATH}/{selected['hostname']}"
+        shutil.rmtree(tmpdir)
+        print(f"删除临时目录: {tmpdir}")
