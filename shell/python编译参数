@@ -1,0 +1,5 @@
+ldconfig
+ ./configure  --prefix=/opt/python39 --enable-optimizations  --enable-shared  --with-openssl=/usr/local/openssl-3.5.0/ --enable-loadable-sqlite-extensions
+
+
+  ./configure  --prefix=/opt/python27 --enable-optimizations  --enable-shared  --with-openssl=/usr/local/openssl-3.5.0/ --enable-loadable-sqlite-extensions
